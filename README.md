@@ -24,7 +24,7 @@ The project is licensed under the Apache‑2.0 license (see [LICENSE](LICENSE)).
 - `pytorch-lightning==1.9.5`
 - NumPy
 - Weights & Biases (optional, used for logging)
-- PyTest and Flake8 for testing and linting
+- PyTest, Flake8 and Bandit for testing, linting and security checks
 
 Install dependencies with:
 
@@ -33,6 +33,17 @@ pip install -r requirements.txt
 ```
 
 The pinned package versions are listed in [requirements.txt](requirements.txt).
+
+## Testing
+
+Run the style and unit tests with:
+
+```bash
+flake8
+bandit -r . -ll
+pytest
+```
+
 
 ## Usage
 
