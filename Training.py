@@ -13,6 +13,7 @@ import numpy as np
 from typing import Optional, List
 import os
 import json
+import pickle  # nosec B403
 import wandb
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import warnings
@@ -453,11 +454,43 @@ def train_model(
 def load_pretrained_rwkv7(
     checkpoint_path: str, config: RWKV7PhantomConfig
 ) -> RWKV7TTTPhantom:
-    """Load pretrained RWKV-7 weights and adapt to Phantom architecture"""
+    """Load pretrained RWKV-7 weights and adapt to Phantom architecture.
+
+    Parameters
+    ----------
+    checkpoint_path : str
+        Path to a trusted ``.pt`` or ``.pth`` checkpoint containing the model
+        weights. Only provide checkpoints from trusted sources to avoid
+        executing untrusted code.
+    config : RWKV7PhantomConfig
+        Configuration for the model.
+    """
+    if not os.path.isfile(checkpoint_path):
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
+    if not checkpoint_path.endswith((".pt", ".pth")):
+        raise ValueError("Checkpoint must end with .pt or .pth")
+
     model = RWKV7TTTPhantom(config)
 
-    # Load checkpoint
-    state_dict = torch.load(checkpoint_path, map_location="cpu")
+    # Load checkpoint using safe parameters when available
+    try:
+        state_dict = torch.load(
+            checkpoint_path, map_location="cpu", weights_only=True
+        )
+    except TypeError:
+        # For PyTorch versions < 2.0 where ``weights_only`` is unsupported
+        class OnlyTensorUnpickler(pickle.Unpickler):
+            def find_class(self, module, name):
+                if module == "torch.storage" and name == "_load_from_bytes":
+                    return super().find_class(module, name)
+                raise pickle.UnpicklingError(
+                    f"Global '{module}.{name}' is forbidden"
+                )
+
+        with open(checkpoint_path, "rb") as f:
+            state_dict = torch.load(  # nosec B614
+                f, map_location="cpu", pickle_module=OnlyTensorUnpickler
+            )
 
     # Adapt state dict to our architecture
     new_state_dict = {}
