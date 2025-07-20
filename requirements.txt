@@ -1,0 +1,6 @@
+pytest
+flake8
+bandit
+torch
+pytorch-lightning==1.9.5
+numpy

@@ -31,6 +31,17 @@ Install dependencies with:
 pip install torch pytorch-lightning==1.9.5 numpy wandb
 ```
 
+## Running Tests
+
+Install the development requirements and execute the linters and test suite:
+
+```bash
+pip install -r requirements.txt
+flake8
+bandit -r .
+pytest
+```
+
 ## Usage
 
 Create a model with the default configuration:
