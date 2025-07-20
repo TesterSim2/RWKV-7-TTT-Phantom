@@ -290,12 +290,14 @@ class RWKV7TimeMixing(nn.Module):
         for t in range(T):
             # Extract core state for TTT
             if hasattr(self, 'ttt') and self.config.ttt_enabled:
-                # Apply TTT to core dimensions
-                core_state = state[:, :, :self.core_dim, :self.core_dim].clone()
-                core_state_flat = core_state.view(B, -1)
-                target = v_core[:, t].detach()  # Use core value as target
-                core_state_flat = self.ttt(core_state_flat, target)
-                state[:, :, :self.core_dim, :self.core_dim] = core_state_flat.view(B, H, self.core_dim // H, self.core_dim // H)
+                # Avoid dimension mismatch if core_dim exceeds state size
+                core_dim = min(self.core_dim, state.size(-1))
+                if core_dim > 0:
+                    core_state = state[:, :, :core_dim, :core_dim].clone()
+                    core_state_flat = core_state.view(B, -1)
+                    target = v_core[:, t, :core_dim].detach()
+                    core_state_flat = self.ttt(core_state_flat, target.view(B, -1))
+                    state[:, :, :core_dim, :core_dim] = core_state_flat.view(B, H, core_dim, core_dim)
             
             # RWKV-7 state update with generalized delta rule
             vk = v[:, t].unsqueeze(-1) @ k[:, t].unsqueeze(-2)

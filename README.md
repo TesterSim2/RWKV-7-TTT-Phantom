@@ -10,7 +10,7 @@ The codebase demonstrates how these ideas can be integrated to build and train n
 
 ## Key Features
 
-- Implementation of a configurable `RWKV7TTTPhantom` model in [Implmention.py](Implmention.py).
+- Implementation of a configurable `RWKV7TTTPhantom` model in [rwkv7_ttt_phantom.py](rwkv7_ttt_phantom.py).
 - PyTorch Lightning training pipeline with optional meta‑learning and weight compression in [Training.py](Training.py).
 - Support for SVD‑based compression and structured sparsity.
 - Autoregressive text generation and utility functions for loading pretrained RWKV‑7 checkpoints.
@@ -36,7 +36,7 @@ pip install torch pytorch-lightning==1.9.5 numpy wandb
 Create a model with the default configuration:
 
 ```python
-from Implmention import create_model
+from rwkv7_ttt_phantom import create_model
 model = create_model()
 ```
 
