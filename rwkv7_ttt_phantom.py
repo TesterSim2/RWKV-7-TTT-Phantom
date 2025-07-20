@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn import LayerNorm
-import numpy as np
 import math
 from typing import Optional, Tuple, List
 from dataclasses import dataclass
@@ -448,9 +447,6 @@ class RWKV7TTTPhantom(nn.Module):
     def forward(self, idx: torch.Tensor, state: Optional[List[torch.Tensor]] = None,
                 return_state: bool = True) -> Tuple[torch.Tensor, Optional[List[torch.Tensor]]]:
         B, T = idx.shape
-        C = self.config.n_embd
-        H = self.config.n_head
-        N = self.config.head_size
         
         # Initialize state if not provided
         if state is None:

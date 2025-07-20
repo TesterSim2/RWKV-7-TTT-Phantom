@@ -10,10 +10,9 @@ from torch.utils.data import DataLoader, Dataset
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, LearningRateMonitor
 import numpy as np
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Optional, List
 import os
 import json
-from pathlib import Path
 import wandb
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import warnings
