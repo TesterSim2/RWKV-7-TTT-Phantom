@@ -24,12 +24,15 @@ The project is licensed under the Apache‑2.0 license (see [LICENSE](LICENSE)).
 - `pytorch-lightning==1.9.5`
 - NumPy
 - Weights & Biases (optional, used for logging)
+- PyTest and Flake8 for testing and linting
 
 Install dependencies with:
 
 ```bash
-pip install torch pytorch-lightning==1.9.5 numpy wandb
+pip install -r requirements.txt
 ```
+
+The pinned package versions are listed in [requirements.txt](requirements.txt).
 
 ## Usage
 

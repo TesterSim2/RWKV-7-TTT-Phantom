@@ -1,0 +1,6 @@
+torch==2.0.1
+pytorch-lightning==1.9.5
+numpy==1.24.4
+wandb==0.15.5
+pytest==7.4.0
+flake8==6.0.0
