@@ -381,7 +381,9 @@ class RWKV7ChannelMixing(nn.Module):
         k = torch.relu(k) ** 2
         output, _ = self.value(k)
 
-        return output, x
+        # Only keep the last token as the new previous input to avoid
+        # dimension mismatch when sequence lengths change across calls.
+        return output, x[:, -1]
 
 
 class RWKV7Block(nn.Module):
