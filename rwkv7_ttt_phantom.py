@@ -217,7 +217,9 @@ class RWKV7TimeMixing(nn.Module):
 
         # TTT module for core state
         if config.ttt_enabled:
-            self.ttt = TTTLayer(self.core_dim, config)
+            # limit TTT dimension to actual state size (head_size)
+            self.ttt_dim = min(self.core_dim, self.head_size)
+            self.ttt = TTTLayer(self.ttt_dim, config)
 
         self._init_weights()
 
