@@ -217,7 +217,9 @@ class RWKV7TimeMixing(nn.Module):
 
         # TTT module for core state
         if config.ttt_enabled:
-            self.ttt = TTTLayer(self.core_dim, config)
+            # limit TTT dimension to actual state size (head_size)
+            self.ttt_dim = min(self.core_dim, self.head_size)
+            self.ttt = TTTLayer(self.ttt_dim, config)
 
         self._init_weights()
 
@@ -308,10 +310,11 @@ class RWKV7TimeMixing(nn.Module):
                 core_dim = min(self.core_dim, state.size(-1))
                 if core_dim > 0:
                     core_state = state[:, :, :core_dim, :core_dim].clone()
-                    core_state_flat = core_state.view(B, -1)
+                    # summarize matrix state to a vector per batch for TTT
+                    core_state_vec = core_state.mean(dim=3).mean(dim=1)
                     target = v_core[:, t, :core_dim].detach()
-                    core_state_flat = self.ttt(core_state_flat, target.view(B, -1))
-                    state[:, :, :core_dim, :core_dim] = core_state_flat.view(
+                    core_state_vec = self.ttt(core_state_vec, target.view(B, -1))
+                    state[:, :, :core_dim, :core_dim] = core_state_vec[:, None, :, None].expand(
                         B, H, core_dim, core_dim
                     )
 
