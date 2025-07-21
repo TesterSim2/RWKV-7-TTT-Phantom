@@ -330,8 +330,8 @@ class RWKV7TimeMixing(nn.Module):
         output = torch.stack(output, dim=1)
         output = output.view(B, T, C)
 
-        # Apply group norm and final processing
-        output = self.ln_x(output)
+        # Apply group norm (expects channels-first)
+        output = self.ln_x(output.permute(0, 2, 1)).permute(0, 2, 1)
         output = output + (r * k * self.r_k.unsqueeze(0).unsqueeze(0)).view(
             B, T, H, N
         ).sum(dim=-1, keepdim=True).expand(-1, -1, -1, N).contiguous().view(
