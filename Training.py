@@ -269,7 +269,10 @@ class RWKV7PhantomLightning(pl.LightningModule):
             lr_scale = min(
                 1.0, float(self.trainer.global_step + 1) / float(self.warmup_steps)
             )
-            for pg in self.optimizers()[0].param_groups:
+            optimizer = self.optimizers()
+            if isinstance(optimizer, list):
+                optimizer = optimizer[0]
+            for pg in optimizer.param_groups:
                 pg["lr"] = lr_scale * self.learning_rate
 
         super().optimizer_step(*args, **kwargs)
