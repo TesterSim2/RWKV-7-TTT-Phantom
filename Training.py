@@ -14,7 +14,7 @@ from typing import Optional, List
 import os
 import json
 import pickle  # nosec B403
-import wandb
+from pytorch_lightning.loggers import WandbLogger, CSVLogger
 from torch.optim.lr_scheduler import CosineAnnealingLR
 import warnings
 from dataclasses import asdict
@@ -371,9 +371,12 @@ def train_model(
     with open(os.path.join(output_dir, "config.json"), "w") as f:
         json.dump(asdict(config), f, indent=2)
 
-    # Initialize wandb
+    # Setup logger
     if use_wandb:
-        wandb.init(project=project_name, config=asdict(config))
+        logger: Optional[pl.loggers.Logger] = WandbLogger(project=project_name)
+        logger.experiment.config.update(asdict(config))
+    else:
+        logger = CSVLogger(save_dir=output_dir, name="logs")
 
     # Create datasets
     dataset = TextDataset(data_path, config)
@@ -435,7 +438,7 @@ def train_model(
         log_every_n_steps=10,
         val_check_interval=0.25,  # Validate 4 times per epoch
         enable_progress_bar=True,
-        logger=wandb.init() if use_wandb else None,
+        logger=logger,
     )
 
     # Train
