@@ -314,8 +314,9 @@ class RWKV7TimeMixing(nn.Module):
                     core_state_vec = core_state.mean(dim=3).mean(dim=1)
                     target = v_core[:, t, :core_dim].detach()
                     core_state_vec = self.ttt(core_state_vec, target.view(B, -1))
-                    state[:, :, :core_dim, :core_dim] = core_state_vec[:, None, :, None].expand(
-                        B, H, core_dim, core_dim
+                    state[:, :, :core_dim, :core_dim] = (
+                        core_state_vec[:, None, :, None]
+                        .expand(B, H, core_dim, core_dim)
                     )
 
             # RWKV-7 state update with generalized delta rule
