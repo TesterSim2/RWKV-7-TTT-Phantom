@@ -367,6 +367,10 @@ def train_model(
     # Create output directory
     os.makedirs(output_dir, exist_ok=True)
 
+    # Optimize matmul on Tensor Core GPUs
+    if torch.cuda.is_available():
+        torch.set_float32_matmul_precision("high")
+
     # Save config
     with open(os.path.join(output_dir, "config.json"), "w") as f:
         json.dump(asdict(config), f, indent=2)
