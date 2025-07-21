@@ -205,12 +205,17 @@ class RWKV7PhantomLightning(pl.LightningModule):
         return loss
 
     def configure_optimizers(self):
-        # Separate parameters by weight decay
+        # Separate parameters by weight decay and collect TTT params
         decay_params = []
         no_decay_params = []
+        ttt_params = []
 
         for name, param in self.model.named_parameters():
             if not param.requires_grad:
+                continue
+
+            if "ttt" in name and self.config.ttt_enabled:
+                ttt_params.append(param)
                 continue
 
             # Don't decay biases, layer norms, embeddings
@@ -223,13 +228,6 @@ class RWKV7PhantomLightning(pl.LightningModule):
                 no_decay_params.append(param)
             else:
                 decay_params.append(param)
-
-        # Special handling for TTT parameters (higher LR)
-        ttt_params = []
-        if self.config.ttt_enabled:
-            for name, param in self.model.named_parameters():
-                if "ttt" in name and param.requires_grad:
-                    ttt_params.append(param)
 
         # Create optimizer groups
         optim_groups = [
